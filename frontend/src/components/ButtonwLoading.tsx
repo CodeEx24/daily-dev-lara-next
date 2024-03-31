@@ -4,13 +4,15 @@ import { Button } from './ui/button';
 export default function ButtonwLoading({
   isLoading = false,
   name,
+  classname = 'w-full',
 }: {
   isLoading: boolean;
   name: string;
+  classname?: string;
 }) {
   return (
     <Button
-      className={`w-full`}
+      className={classname}
       type="submit"
       disabled={isLoading ? true : false}
     >

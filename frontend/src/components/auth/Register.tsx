@@ -4,35 +4,24 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
-import { Button } from '@/components/ui/button';
-import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
+import { Form } from '@/components/ui/form';
 
 import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
 import { TabsContent } from '../ui/tabs';
-import { AnySchema, RegisterSchema } from '@/schemas';
-import FormInput from './FormInput';
+import { RegisterSchema } from '@/schemas';
 import myAxios from '@/lib/axios.config';
 import { REGISTER_URL } from '@/lib/apiEndpoints';
 import { useState } from 'react';
 import { useToast } from '@/components/ui/use-toast';
 import ButtonwLoading from '../ButtonwLoading';
 import { signIn } from 'next-auth/react';
+import FormInput from '../base/FormInput';
 
 export default function Register() {
   const [registerLoading, setRegisterLoading] = useState(false);

@@ -2,6 +2,7 @@ import Link from 'next/link';
 import UserAvatar from '../common/UserAvatar';
 import { ArrowBigUp, Flame, LinkIcon, Search } from 'lucide-react';
 import SidebarLinks from './SidebarLinks';
+import { CustomUser } from '@/app/api/auth/[...nextauth]/authOptions';
 
 export default function Sidebar() {
   return (

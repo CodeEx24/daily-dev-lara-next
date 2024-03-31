@@ -16,38 +16,47 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { useState } from 'react';
-import { Button } from '../ui/button';
-import myAxios from '@/lib/axios.config';
-import { LOGOUT_URL } from '@/lib/apiEndpoints';
-import { CustomUser } from '@/app/api/auth/[...nextauth]/authOptions';
-import { useToast } from '../ui/use-toast';
-import { signOut } from 'next-auth/react';
-import { Label } from '../ui/label';
-import { Input } from '../ui/input';
-import { ProfileUpdateSchema } from '@/schemas';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
+
 import {
   FormControl,
   FormField,
   FormItem,
   FormMessage,
   Form,
+  FormLabel,
 } from '../ui/form';
 
-export default function ProfileMenu({ user }: { user: CustomUser }) {
+import { useState } from 'react';
+import { Button } from '../ui/button';
+import myAxios from '@/lib/axios.config';
+import { LOGOUT_URL, UPDATE_PROFILE_URL } from '@/lib/apiEndpoints';
+import { CustomUser } from '@/app/api/auth/[...nextauth]/authOptions';
+import { useToast } from '../ui/use-toast';
+import { signOut, useSession } from 'next-auth/react';
+
+import { ProfileUpdateSchema } from '@/schemas';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import { Input } from '../ui/input';
+import ButtonwLoading from '../ButtonwLoading';
+import { handleErrorResponse } from '@/lib/handleErrorResponse';
+
+export default function ProfileMenu() {
   const [logoutOpen, setLogoutOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
 
+  const { data, update } = useSession();
+  const session = data?.user as CustomUser;
+
   const { toast } = useToast();
+
   const logoutUser = async () => {
     myAxios
       .post(
         LOGOUT_URL,
         {},
-        { headers: { Authorization: `Bearer ${user.token}` } }
+        { headers: { Authorization: `Bearer ${session.token}` } }
       )
       .then((res) => {
         signOut({
@@ -63,14 +72,44 @@ export default function ProfileMenu({ user }: { user: CustomUser }) {
       });
   };
 
+  // PROFILE FORMS
+  const [isLoading, setIsLoading] = useState(false);
   const profileForm = useForm<z.infer<typeof ProfileUpdateSchema>>({
     resolver: zodResolver(ProfileUpdateSchema),
-    defaultValues: {
-      profile: '',
-    },
   });
+  const fileRef = profileForm.register('profile');
+
   function onSubmit(values: z.infer<typeof ProfileUpdateSchema>) {
-    console.log('ACCEPTED: ', values.profile);
+    const formData = new FormData();
+    formData.append('profile_image', values.profile[0]);
+
+    setIsLoading(true);
+    myAxios
+      .post(UPDATE_PROFILE_URL, formData, {
+        headers: {
+          Authorization: `Bearer ${session.token}`,
+        },
+      })
+      .then((res) => {
+        const response = res.data;
+        update({ profile_image: response.image });
+        toast({
+          description: 'Profile image updated successfully!',
+        });
+        setProfileOpen(false);
+      })
+      .catch((err) => {
+        handleErrorResponse({
+          err: err,
+          toast: toast,
+          form: profileForm,
+          description: 'Some Desc',
+          variant: 'destructive',
+        });
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
   }
 
   return (
@@ -109,29 +148,38 @@ export default function ProfileMenu({ user }: { user: CustomUser }) {
                 <FormField
                   control={profileForm.control}
                   name="profile"
-                  render={({ field }) => (
-                    <FormItem>
-                      <Label>Your Profile</Label>
-                      <FormControl>
-                        <Input
-                          placeholder="Profile Image"
-                          className="file:text-white"
-                          type="file"
-                          autoComplete="off"
-                          accept="image/png,image/svg,image/jpeg,image/jpg,image/gif,image/webp"
-                          {...field}
-                        />
-                      </FormControl>
+                  render={({ field }) => {
+                    return (
+                      <FormItem>
+                        <FormLabel>File</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="file"
+                            id="profile"
+                            placeholder="shadcn"
+                            className="file:text-white"
+                            {...fileRef}
+                            onChange={(event) => {
+                              field.onChange(
+                                event.target?.files?.[0] ?? undefined
+                              );
 
-                      <FormMessage />
-                    </FormItem>
-                  )}
+                              console.log(
+                                'THIS IS WHAT HE SET: ',
+                                event.target?.files?.[0]
+                              );
+                            }}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    );
+                  }}
                 />
               </div>
               <div className="flex justify-end gap-4">
-                <Button type="submit" className="">
-                  Update Profile
-                </Button>{' '}
+                <ButtonwLoading isLoading={isLoading} name="Update Profile" />
+
                 <Button
                   type="reset"
                   variant={'destructive'}
@@ -147,7 +195,7 @@ export default function ProfileMenu({ user }: { user: CustomUser }) {
 
       <DropdownMenu>
         <DropdownMenuTrigger>
-          <UserAvatar />
+          <UserAvatar image={session?.profile_image ?? undefined} />
         </DropdownMenuTrigger>
         <DropdownMenuContent className="mr-4 mt-2">
           <DropdownMenuLabel>My Account</DropdownMenuLabel>

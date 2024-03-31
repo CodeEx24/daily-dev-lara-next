@@ -26,13 +26,14 @@ import {
 } from '@/components/ui/card';
 import { TabsContent } from '../ui/tabs';
 import { LoginSchema } from '@/schemas';
-import FormInput from './FormInput';
 import myAxios from '@/lib/axios.config';
 import { CHECK_CREDENTIALS_URL, LOGIN_URL } from '@/lib/apiEndpoints';
 import { useState } from 'react';
 import ButtonwLoading from '../ButtonwLoading';
 import { useToast } from '@/components/ui/use-toast';
 import { signIn } from 'next-auth/react';
+import { handleErrorResponse } from '@/lib/handleErrorResponse';
+import FormInput from '../base/FormInput';
 
 export default function Login() {
   const [loginLoading, setLoginLoading] = useState(false);
@@ -69,25 +70,13 @@ export default function Login() {
         }
       })
       .catch((err) => {
-        if (err.response?.status === 422) {
-          const errors = err.response?.data.errors;
-          const keys = Object.keys(errors);
-
-          keys.forEach((key: any) => {
-            const error = errors[key];
-            if (error[0]) {
-              form.setError(key, {
-                type: 'manual',
-                message: error[0],
-              });
-            }
-          });
-        } else if (err.response?.status === 401) {
-          toast({
-            variant: 'destructive',
-            description: 'Invalid email or password.',
-          });
-        }
+        handleErrorResponse({
+          err: err,
+          toast: toast,
+          form: form,
+          description: 'Invalid email or password.',
+          variant: 'destructive',
+        });
       })
       .finally(() => {
         setLoginLoading(false);

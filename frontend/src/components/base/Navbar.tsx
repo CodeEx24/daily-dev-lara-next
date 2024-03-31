@@ -14,7 +14,7 @@ import {
   authOptions,
 } from '@/app/api/auth/[...nextauth]/authOptions';
 
-export default async function Navbar({ user }: { user: CustomUser }) {
+export default async function Navbar() {
   return (
     <nav className="flex justify-between items-center p-2 px-6 border-b">
       <MobileSidebar />
@@ -24,7 +24,7 @@ export default async function Navbar({ user }: { user: CustomUser }) {
         <Button size="icon" variant="secondary">
           <BellIcon className="w-5 h-5" />
         </Button>
-        <ProfileMenu user={user} />
+        <ProfileMenu />
       </div>
     </nav>
   );

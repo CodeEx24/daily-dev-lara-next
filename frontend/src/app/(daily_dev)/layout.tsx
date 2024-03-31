@@ -17,11 +17,9 @@ export default async function DailyDevLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const session = (await getServerSession(authOptions)) as CustomSession | null;
-
   return (
     <div className="h-screen overflow-y-hidden">
-      <Navbar user={session?.user!} />
+      <Navbar />
       <div className="flex ">
         <Sidebar />
         <div className="flex justify-center items-center overflow-y-scroll w-full">

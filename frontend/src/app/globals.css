@@ -76,4 +76,16 @@
   body {
     @apply bg-background text-foreground;
   }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-cabbage rounded-full opacity-10;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-secondary opacity-10;
+  }
+
+  ::-webkit-scrollbar {
+    @apply w-1;
+  }
 }

@@ -1,8 +1,5 @@
 import * as z from 'zod';
 
-const MAX_FILE_SIZE = 5000000;
-const ACCEPTED_IMAGE_TYPES = ['jpeg', 'jpg', 'png', 'webp'];
-
 export const LoginSchema = z.object({
   email: z.string().email({
     message: 'Email is required',
@@ -14,14 +11,54 @@ export const LoginSchema = z.object({
 });
 
 export const ProfileUpdateSchema = z.object({
-  profile: z
-    .any()
-    .refine((file) => file?.size <= MAX_FILE_SIZE, `Max image size is 5MB.`)
-    .refine(
-      (file) =>
-        ACCEPTED_IMAGE_TYPES.includes(file.split('.').pop()?.toLowerCase()),
-      'Only .jpg, .jpeg, .png and .webp formats are supported.'
-    ),
+  profile: z.any(),
+  // .refine((file) => file?.size <= MAX_FILE_SIZE, `Max image size is 5MB.`)
+  // .refine(
+  //   (file) =>
+  //     ACCEPTED_IMAGE_TYPES.includes(file.split('.').pop()?.toLowerCase()),
+  //   'Only .jpg, .jpeg, .png and .webp formats are supported.'
+  // ),
+});
+
+export const CommentFormSchema = z.object({
+  comment: z
+    .string()
+    .min(6, { message: 'This comment must have at least 6 characters' }),
+});
+
+export const PostFormSchema = z.object({
+  title: z
+    .string()
+    .min(2, { message: 'Must have atleast 2 characters' })
+    .max(190, { message: 'Title cannot exceed 190 characters' }),
+  url: z
+    .string()
+    .url('URL must be a valid URL') // Consistent error message
+    .startsWith('https://', 'URL must start with https://'), // Specific requirement
+  //   image_url: z
+  //     .string()
+  //     .url('Image URL must be a valid URL') // Consistent error message
+  //     .regex(/^https?:\/\//, {
+  //       message: 'Image URL must start with http or https',
+  //     }),
+  description: z.string().superRefine((val, ctx) => {
+    if (val.length < 10 && val.length != 0) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.too_big,
+        maximum: 10,
+        type: 'string',
+        inclusive: true,
+        message: 'Description must have at least 10 characters',
+      });
+    }
+
+    if (val.length > 20000) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: `Maximum must have 20,000 characters.`,
+      });
+    }
+  }),
 });
 
 export const RegisterSchema = z.object({

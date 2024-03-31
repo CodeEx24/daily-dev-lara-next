@@ -70,11 +70,11 @@ class AuthController extends Controller
             if ($user) {
                 // * Check password
                 if (!Hash::check($payload["password"], $user->password)) {
-                    return response()->json(["status" => 401, "message" => "Invalid credentials."]);
+                    return response()->json(["message" => "Invalid credentials."], 401); // Proper in catch
                 }
                 return ["status" => 200, "message" => "Loggedin succssfully!"];
             }
-            return response()->json(["status" => 401, "message" => "No account found with these credentials."]);
+            return response()->json(["message" => "Invalid email or password"], 401);
         } catch (\Exception $err) {
             Log::info("user_register_err =>" . $err->getMessage());
             return response()->json(["status" => 500, "message" => "Something went wrong!"], 500);

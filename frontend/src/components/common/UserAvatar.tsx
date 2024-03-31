@@ -1,3 +1,4 @@
+import { getImageUrl } from '@/lib/utils';
 import Image from 'next/image';
 import React from 'react';
 
@@ -15,7 +16,12 @@ export default function UserAvatar({
   return (
     <div>
       {image ? (
-        <Image src={image} width={width} height={height} alt={alt} />
+        <Image
+          src={getImageUrl(image)}
+          width={width}
+          height={height}
+          alt={alt}
+        />
       ) : (
         <Image src="/avatar.png" width={width} height={height} alt={alt} />
       )}

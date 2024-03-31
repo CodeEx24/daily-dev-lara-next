@@ -1,46 +1,43 @@
+import React from 'react';
+import { Textarea } from '../ui/textarea';
+
 import {
   FormControl,
   FormField,
   FormItem,
-  FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
 import { Label } from '../ui/label';
 
-type FormInputProps = {
+type FormTextAreaProps = {
   name: string;
   label: string;
   placeholder: string;
-  type: string;
   classname: string;
   form: any;
 };
 
-export default function FormInput({
+export default function FormTextArea({
   name,
   label,
   placeholder,
-  type,
   classname = '',
   form,
-}: FormInputProps) {
+}: FormTextAreaProps) {
   return (
     <FormField
       control={form.control}
       name={name}
       render={({ field }) => (
-        <FormItem className={classname}>
+        <FormItem>
           <Label>{label}</Label>
           <FormControl>
-            <Input
+            <Textarea
               placeholder={placeholder}
-              type={type}
-              autoComplete="off"
+              className={classname}
               {...field}
             />
           </FormControl>
-
           <FormMessage />
         </FormItem>
       )}
